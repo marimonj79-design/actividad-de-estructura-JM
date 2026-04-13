@@ -1,0 +1,54 @@
+import java.util.*;
+
+public class CaminoMasCortoBFS {
+    public static void encontrarCamino(int n, int[][] conexiones, int inicio, int fin) {
+        // 1. Crear lista de adyacencia
+        List<Integer>[] adj = new ArrayList[n];
+        for (int i = 0; i < n; i++) adj[i] = new ArrayList<>();
+        for (int[] c : conexiones) {
+            adj[c[0]].add(c[1]);
+            adj[c[1]].add(c[0]);
+        }
+
+        // 2. Preparar BFS
+        Queue<Integer> cola = new ArrayDeque<>();
+        int[] padre = new int[n];      // Para reconstruir el camino
+        boolean[] visitado = new boolean[n];
+        
+        Arrays.fill(padre, -1);
+        cola.add(inicio);
+        visitado[inicio] = true;
+
+        // 3. Ejecución del BFS
+        while (!cola.isEmpty()) {
+            int actual = cola.poll();
+            if (actual == fin) break; // Destino encontrado
+
+            for (int vecino : adj[actual]) {
+                if (!visitado[vecino]) {
+                    visitado[vecino] = true;
+                    padre[vecino] = actual;
+                    cola.add(vecino);
+                }
+            }
+        }
+
+        // 4. Reconstrucción del camino desde el fin hacia el inicio
+        LinkedList<Integer> camino = new LinkedList<>();
+        if (visitado[fin]) {
+            for (int v = fin; v != -1; v = padre[v]) {
+                camino.addFirst(v); // Insertar al inicio para evitar reverse
+            }
+            System.out.println("Camino más corto entre " + inicio + " y " + fin + ": " + camino);
+            System.out.println("Distancia (número de aristas): " + (camino.size() - 1));
+        } else {
+            System.out.println("No existe conexión entre los vértices.");
+        }
+    }
+
+    public static void main(String[] args) {
+        // Grafo: 0–1, 0–2, 1–3, 2–3, 3–4, 4–5
+        int[][] conexiones = {{0, 1}, {0, 2}, {1, 3}, {2, 3}, {3, 4}, {4, 5}};
+        encontrarCamino(6, conexiones, 0, 5);
+    }
+}
