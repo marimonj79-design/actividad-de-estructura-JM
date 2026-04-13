@@ -1,0 +1,93 @@
+import java.util.*;
+
+public class DijkstraGrafo {
+    static class Edge {
+        int target, weight;
+        Edge(int target, int weight) {
+            this.target = target;
+            this.weight = weight;
+        }
+    }
+
+    static class Node implements Comparable<Node> {
+        int id, distance;
+        Node(int id, int distance) {
+            this.id = id;
+            this.distance = distance;
+        }
+        public int compareTo(Node o) { return Integer.compare(this.distance, o.distance); }
+    }
+
+    public static void calcularDijkstra(int vertices, List<List<Edge>> adj, int start) {
+        int[] distances = new int[vertices];
+        int[] parent = new int[vertices];
+        Arrays.fill(distances, Integer.MAX_VALUE);
+        Arrays.fill(parent, -1);
+        
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        distances[start] = 0;
+        pq.add(new Node(start, 0));
+
+        while (!pq.isEmpty()) {
+            Node actual = pq.poll();
+            int u = actual.id;
+
+            if (actual.distance > distances[u]) continue;
+
+            for (Edge edge : adj.get(u)) {
+                int v = edge.target;
+                int weight = edge.weight;
+
+                if (distances[u] + weight < distances[v]) {
+                    distances[v] = distances[u] + weight;
+                    parent[v] = u;
+                    pq.add(new Node(v, distances[v]));
+                }
+            }
+        }
+
+        imprimirResultados(start, distances, parent);
+    }
+
+    private static void imprimirResultados(int start, int[] distances, int[] parent) {
+        System.out.println("Resultados Dijkstra desde el nodo " + start + ":");
+        System.out.println("-------------------------------------------");
+        for (int i = 0; i < distances.length; i++) {
+            System.out.print("Hacia " + i + ": Distancia = " + (distances[i] == Integer.MAX_VALUE ? "Inf" : distances[i]));
+            System.out.print(" | Camino: ");
+            imprimirCamino(i, parent);
+            System.out.println();
+        }
+    }
+
+    private static void imprimirCamino(int target, int[] parent) {
+        if (target == -1) return;
+        List<Integer> path = new ArrayList<>();
+        for (int v = target; v != -1; v = parent[v]) {
+            path.add(v);
+        }
+        Collections.reverse(path);
+        for (int i = 0; i < path.size(); i++) {
+            System.out.print(path.get(i) + (i < path.size() - 1 ? " -> " : ""));
+        }
+    }
+
+    public static void main(String[] args) {
+        int V = 5;
+        List<List<Edge>> adj = new ArrayList<>();
+        for (int i = 0; i < V; i++) adj.add(new ArrayList<>());
+
+        // Definición del grafo dirigido
+        adj.get(0).add(new Edge(1, 10));
+        adj.get(0).add(new Edge(4, 3));
+        adj.get(1).add(new Edge(2, 2));
+        adj.get(1).add(new Edge(4, 4));
+        adj.get(2).add(new Edge(3, 9));
+        adj.get(3).add(new Edge(2, 7));
+        adj.get(4).add(new Edge(1, 1));
+        adj.get(4).add(new Edge(2, 8));
+        adj.get(4).add(new Edge(3, 2));
+
+        calcularDijkstra(V, adj, 0);
+    }
+}
