@@ -1,0 +1,84 @@
+import java.util.*;
+
+public class FloydWarshallGrafo {
+    static final int INF = 9999; // Valor para representar la ausencia de conexión
+
+    public static void calcularFloyd(int V, int[][] grafo) {
+        int[][] dist = new int[V][V];
+        int[][] next = new int[V][V]; // Matriz para reconstruir los caminos
+
+        // 1. Inicializar matrices
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                dist[i][j] = grafo[i][j];
+                if (grafo[i][j] != INF && i != j) {
+                    next[i][j] = j;
+                } else {
+                    next[i][j] = -1;
+                }
+            }
+        }
+
+        // 2. Núcleo del algoritmo: Probar cada vértice como intermediario (k)
+        for (int k = 0; k < V; k++) {
+            for (int i = 0; i < V; i++) {
+                for (int j = 0; j < V; j++) {
+                    if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                        next[i][j] = next[i][k];
+                    }
+                }
+            }
+        }
+
+        imprimirMatriz(dist, V);
+        mostrarCamino(0, 3, next);
+    }
+
+    private static void imprimirMatriz(int[][] dist, int V) {
+        System.out.println("Matriz de Distancias Final (Floyd-Warshall):");
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                if (dist[i][j] == INF) System.out.print("INF\t");
+                else System.out.print(dist[i][j] + "\t");
+            }
+            System.out.println();
+        }
+    }
+
+    private static void mostrarCamino(int u, int v, int[][] next) {
+        System.out.print("\nCamino mínimo de " + u + " -> " + v + ": ");
+        if (next[u][v] == -1) {
+            System.out.println("No existe camino.");
+            return;
+        }
+        System.out.print(u);
+        while (u != v) {
+            u = next[u][v];
+            System.out.print(" -> " + u);
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        int V = 5;
+        int[][] grafo = new int[V][V];
+
+        // Llenar con infinito y ceros en la diagonal
+        for (int[] row : grafo) Arrays.fill(row, INF);
+        for (int i = 0; i < V; i++) grafo[i][i] = 0;
+
+        // Definición del grafo dirigido anterior
+        grafo[0][1] = 10;
+        grafo[0][4] = 3;
+        grafo[1][2] = 2;
+        grafo[1][4] = 4;
+        grafo[2][3] = 9;
+        grafo[3][2] = 7;
+        grafo[4][1] = 1;
+        grafo[4][2] = 8;
+        grafo[4][3] = 2;
+
+        calcularFloyd(V, grafo);
+    }
+}
