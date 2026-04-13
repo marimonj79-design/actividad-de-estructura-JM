@@ -1,0 +1,67 @@
+import java.util.Arrays;
+
+public class AlgoritmoWarshall {
+
+    public static void calcularWarshall(int V, int[][] adj) {
+        // Inicializamos la matriz de alcanzabilidad con la matriz de adyacencia
+        int[][] alcanzable = new int[V][V];
+        for (int i = 0; i < V; i++) {
+            alcanzable[i] = Arrays.copyOf(adj[i], V);
+            alcanzable[i][i] = 1; // Un nodo siempre se alcanza a sí mismo
+        }
+
+        // Núcleo del algoritmo: k es el nodo intermedio
+        for (int k = 0; k < V; k++) {
+            for (int i = 0; i < V; i++) {
+                for (int j = 0; j < V; j++) {
+                    // Si i llega a k Y k llega a j, entonces i llega a j
+                    if (alcanzable[i][k] == 1 && alcanzable[k][j] == 1) {
+                        alcanzable[i][j] = 1;
+                    }
+                }
+            }
+        }
+
+        imprimirMatriz(alcanzable, V);
+        verificarFuertementeConexo(alcanzable, V);
+    }
+
+    private static void imprimirMatriz(int[][] matriz, int V) {
+        System.out.println("Matriz de alcanzabilidad final:");
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                System.out.print(matriz[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    private static void verificarFuertementeConexo(int[][] matriz, int V) {
+        boolean esFuertementeConexo = true;
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                if (matriz[i][j] == 0) {
+                    esFuertementeConexo = false;
+                    break;
+                }
+            }
+        }
+
+        System.out.println("\n¿Es el grafo fuertemente conexo?");
+        System.out.println(esFuertementeConexo ? "Sí, todos los nodos se alcanzan entre sí." 
+                                              : "No, existen nodos que no pueden alcanzar a otros.");
+    }
+
+    public static void main(String[] args) {
+        int V = 4;
+        // Grafo: 0→1, 1→2, 2→0, 2→3
+        int[][] grafo = {
+            {0, 1, 0, 0},
+            {0, 0, 1, 0},
+            {1, 0, 0, 1},
+            {0, 0, 0, 0}
+        };
+
+        calcularWarshall(V, grafo);
+    }
+}
