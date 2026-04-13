@@ -1,0 +1,97 @@
+import java.util.*;
+
+public class SimulacionRed {
+    private int numNodos;
+    private List<Integer>[] adj;
+
+    // Constructor: Inicializa la red con N nodos
+    public java.util.List<Integer>[] getAdj() { return adj; }
+
+    public SimulacionRed(int n) {
+        this.numNodos = n;
+        adj = new ArrayList[n];
+        for (int i = 0; i < n; i++) {
+            adj[i] = new ArrayList<>();
+        }
+    }
+
+    // 1. Agregar una conexión (Bidireccional para una red simple)
+    public void conectar(int u, int v) {
+        if (u >= 0 && u < numNodos && v >= 0 && v < numNodos) {
+            if (!adj[u].contains(v)) {
+                adj[u].add(v);
+                adj[v].add(u);
+                System.out.println("Conexión establecida: Nodo " + u + " <-> Nodo " + v);
+            }
+        } else {
+            System.out.println("Error: Nodos fuera de rango.");
+        }
+    }
+
+    // 2 y 3. BFS para comunicación y camino más corto
+    public void buscarComunicacion(int inicio, int destino) {
+        if (inicio == destino) {
+            System.out.println("Es la misma computadora.");
+            return;
+        }
+
+        Queue<Integer> cola = new ArrayDeque<>();
+        int[] padre = new int[numNodos];
+        boolean[] visitado = new boolean[numNodos];
+        Arrays.fill(padre, -1);
+
+        cola.add(inicio);
+        visitado[inicio] = true;
+
+        while (!cola.isEmpty()) {
+            int actual = cola.poll();
+            if (actual == destino) break;
+
+            for (int vecino : adj[actual]) {
+                if (!visitado[vecino]) {
+                    visitado[vecino] = true;
+                    padre[vecino] = actual;
+                    cola.add(vecino);
+                }
+            }
+        }
+
+        // Mostrar resultados
+        if (!visitado[destino]) {
+            System.out.println("Resultado: El Nodo " + inicio + " NO puede comunicarse con el Nodo " + destino);
+        } else {
+            System.out.println("Resultado: ¡Comunicación posible!");
+            
+            // Reconstrucción del camino
+            LinkedList<Integer> camino = new LinkedList<>();
+            for (int v = destino; v != -1; v = padre[v]) {
+                camino.addFirst(v);
+            }
+            System.out.println("Camino más corto (saltos): " + camino);
+            System.out.println("Número total de saltos: " + (camino.size() - 1));
+        }
+    }
+
+    public static void main(String[] args) {
+        SimulacionRed red = new SimulacionRed(6); // Red de 6 nodos (0 al 5)
+
+        System.out.println("--- Configurando Red de Computadoras ---");
+        // Agregamos algunas conexiones iniciales
+        red.conectar(0, 1);
+        red.conectar(0, 2);
+        red.conectar(1, 3);
+        red.conectar(2, 3);
+        red.conectar(3, 4);
+        // El nodo 5 queda desconectado inicialmente para la prueba
+
+        System.out.println("\n--- Prueba de Comunicación 1 ---");
+        red.buscarComunicacion(0, 4);
+
+        System.out.println("\n--- Prueba de Comunicación 2 (Nodo aislado) ---");
+        red.buscarComunicacion(0, 5);
+
+        System.out.println("\n--- Agregando nueva conexión para integrar el Nodo 5 ---");
+        red.conectar(4, 5);
+        red.buscarComunicacion(0, 5);
+    }
+}
