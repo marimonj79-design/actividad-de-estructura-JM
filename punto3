@@ -1,0 +1,52 @@
+import java.util.*;
+
+public class CaminoBFS {
+    static int[] parent, rank;
+
+    static int find(int x) {
+        return parent[x] == x ? x : (parent[x] = find(parent[x]));
+    }
+
+    static boolean union(int a, int b) {
+        int rootA = find(a); 
+        int rootB = find(b);
+        if (rootA == rootB) return false;
+        
+        if (rank[rootA] < rank[rootB]) {
+            parent[rootA] = rootB;
+        } else {
+            parent[rootB] = rootA;
+            if (rank[rootA] == rank[rootB]) rank[rootA]++;
+        }
+        return true;
+    }
+
+    public static void main(String[] args) {
+        // Grafo inicial: {u, v, peso}
+        int[][] edges = {{0,2,1},{1,2,2},{2,3,2},{4,5,3},{3,5,4},{0,3,5},{1,4,5},{0,1,6},{2,4,6}};
+        
+        // El algoritmo de Kruskal requiere que las aristas estén ordenadas por peso
+        Arrays.sort(edges, (a, b) -> a[2] - b[2]);
+
+        parent = new int[]{0,1,2,3,4,5};
+        rank   = new int[6];
+
+        int cost = 0;
+        int descartadas = 0;
+
+        System.out.println("=== ARISTAS SELECCIONADAS (MST) ===");
+        for (int[] e : edges) {
+            if (union(e[0], e[1])) {
+                System.out.printf("  %d -- %d  (peso %d)%n", e[0], e[1], e[2]);
+                cost += e[2];
+            } else {
+                // Si la unión falla, es porque detectó un ciclo
+                descartadas++;
+            }
+        }
+
+        System.out.println("\n=== RESUMEN ===");
+        System.out.println("Costo total del MST: " + cost);
+        System.out.println("Número de aristas descartadas por ciclo: " + descartadas);
+    }
+}
