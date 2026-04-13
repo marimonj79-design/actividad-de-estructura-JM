@@ -1,0 +1,39 @@
+import java.util.*;
+
+public class KruskalMST {
+    static int[] parent, rank;
+
+    static int find(int x) {
+        return parent[x] == x ? x : (parent[x] = find(parent[x]));
+    }
+
+    static boolean union(int a, int b) {
+        a = find(a); b = find(b);
+        if (a == b) return false;
+        if (rank[a] < rank[b]) { int t = a; a = b; b = t; }
+        parent[b] = a;
+        if (rank[a] == rank[b]) rank[a]++;
+        return true;
+    }
+
+    public static void main(String[] args) {
+        int[][] edges = {{0,2,1},{1,2,2},{2,3,2},{4,5,3},{3,5,4},{0,3,5},{1,4,5},{0,1,6},{2,4,6}};
+        Arrays.sort(edges, (a, b) -> a[2] - b[2]);
+
+        parent = new int[]{0,1,2,3,4,5};
+        rank   = new int[6];
+
+        int cost = 0;
+        System.out.println("Aristas del MST:");
+        for (int[] e : edges) {
+            if (union(e[0], e[1])) {
+                System.out.printf("  %d -- %d  (peso %d)%n", e[0], e[1], e[2]);
+                cost += e[2];
+            }
+        }
+        System.out.println("Costo total: " + cost);
+    }
+}
+
+
+2 
