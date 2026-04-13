@@ -1,0 +1,97 @@
+import java.util.*;
+
+public class PrimAlgorithm {
+
+    // Clase para representar una arista con su origen, destino y peso
+    static class Edge implements Comparable<Edge> {
+        int from, to, weight;
+
+        public Edge(int from, int to, int weight) {
+            this.from = from;
+            this.to = to;
+            this.weight = weight;
+        }
+
+        @Override
+        public int compareTo(Edge other) {
+            return Integer.compare(this.weight, other.weight);
+        }
+    }
+
+    // Clase para el Grafo
+    static class Graph {
+        int V;
+        List<List<Edge>> adj;
+
+        public Graph(int V) {
+            this.V = V;
+            adj = new ArrayList<>();
+            for (int i = 0; i < V; i++) {
+                adj.add(new ArrayList<>());
+            }
+        }
+
+        public void addEdge(int u, int v, int w) {
+            adj.get(u).add(new Edge(u, v, w));
+            adj.get(v).add(new Edge(v, u, w)); // Grafo no dirigido
+        }
+
+        public void primMST(int startNode) {
+            System.out.println("\n--- Ejecutando Prim desde el vértice " + startNode + " ---");
+            
+            boolean[] visited = new boolean[V];
+            PriorityQueue<Edge> pq = new PriorityQueue<>();
+            List<Edge> mstEdges = new ArrayList<>();
+            int totalCost = 0;
+
+            // Marcamos el nodo inicial como visitado y agregamos sus aristas a la cola
+            visited[startNode] = true;
+            pq.addAll(adj.get(startNode));
+
+            while (!pq.isEmpty() && mstEdges.size() < V - 1) {
+                Edge edge = pq.poll();
+
+                // Si el nodo destino ya fue visitado, ignoramos la arista para evitar ciclos
+                if (visited[edge.to]) continue;
+
+                // Seleccionamos la arista
+                visited[edge.to] = true;
+                mstEdges.add(edge);
+                totalCost += edge.weight;
+
+                System.out.println("Arista seleccionada: " + edge.from + " -- " + edge.to + " (Peso: " + edge.weight + ")");
+
+                // Agregamos las aristas del nuevo nodo visitado a la cola
+                for (Edge nextEdge : adj.get(edge.to)) {
+                    if (!visited[nextEdge.to]) {
+                        pq.add(nextEdge);
+                    }
+                }
+            }
+
+            System.out.println("Costo total del MST: " + totalCost);
+        }
+    }
+
+    public static void main(String[] args) {
+        int vertices = 6;
+        Graph graph = new Graph(vertices);
+
+        // Definición del grafo: u, v, peso
+        graph.addEdge(0, 1, 6);
+        graph.addEdge(0, 2, 1);
+        graph.addEdge(0, 3, 5);
+        graph.addEdge(1, 2, 2);
+        graph.addEdge(1, 4, 5);
+        graph.addEdge(2, 3, 2);
+        graph.addEdge(2, 4, 6);
+        graph.addEdge(3, 5, 4);
+        graph.addEdge(4, 5, 3);
+
+        // Prueba 1: Iniciando desde 0
+        graph.primMST(0);
+
+        // Prueba 2: Iniciando desde 2
+        graph.primMST(2);
+    }
+}
